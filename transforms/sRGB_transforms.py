@@ -50,6 +50,43 @@ def make_transforms(transform_path, config):
         path=path,
         decimals=10)
 
+    # Off-domain 1D variant
+    sRGB_domain_variant = numpy.array([-0.125, 4.875])
+    sRGB_tf_to_linear_LUT_variant = colour.LUT1D(
+        table=models.sRGB_COLOURSPACE.cctf_decoding(
+            colour.LUT1D.linear_table(
+                1024, sRGB_domain_variant)),
+        name="sRGB to Linear Variant",
+        domain=sRGB_domain_variant,
+        comments=["sRGB CCTF to Display Linear"])
+    sRGB_linear_to_tf_LUT_variant = colour.LUT1D(
+        table=models.sRGB_COLOURSPACE.cctf_encoding(
+            colour.LUT1D.linear_table(
+                8192, sRGB_domain_variant)),
+        name="Linear to sRGB Variant",
+        domain=sRGB_domain_variant,
+        comments=["sRGB Display Linear to CCTF"])
+
+    path = os.path.join(
+        transform_path,
+        "sRGB_CCTF_to_Linear_variant.spi1d"
+    )
+    create_directory(path)
+    io.write_LUT(
+        LUT=sRGB_tf_to_linear_LUT_variant,
+        path=path,
+        decimals=10)
+
+    path = os.path.join(
+        transform_path,
+        "sRGB_Linear_to_CCTF_variant.spi1d"
+    )
+    create_directory(path)
+    io.write_LUT(
+        LUT=sRGB_linear_to_tf_LUT_variant,
+        path=path,
+        decimals=10)
+
     # Define the sRGB specification
     colourspace = PyOpenColorIO.ColorSpace(
         family="Colourspace",
@@ -64,6 +101,29 @@ def make_transforms(transform_path, config):
 
     transform_from = PyOpenColorIO.FileTransform(
             "sRGB_Linear_to_CCTF.spi1d",
+            interpolation=PyOpenColorIO.Constants.INTERP_NEAREST)
+
+    colourspace.setTransform(
+        transform_to, PyOpenColorIO.Constants.COLORSPACE_DIR_TO_REFERENCE)
+    colourspace.setTransform(
+        transform_from, PyOpenColorIO.Constants.COLORSPACE_DIR_FROM_REFERENCE)
+
+    config.addColorSpace(colourspace)
+
+    # Define the sRGB specification for the variation
+    colourspace = PyOpenColorIO.ColorSpace(
+        family="Colourspace",
+        name="sRGB Colourspace Variant")
+    colourspace.setDescription("sRGB IEC 61966-2-1 Colourspace variant")
+    colourspace.setBitDepth(PyOpenColorIO.Constants.BIT_DEPTH_F32)
+    colourspace.setAllocationVars([-0.125, 1.125])
+    colourspace.setAllocation(PyOpenColorIO.Constants.ALLOCATION_UNIFORM)
+    transform_to = PyOpenColorIO.FileTransform(
+            "sRGB_CCTF_to_Linear_variant.spi1d",
+            interpolation=PyOpenColorIO.Constants.INTERP_NEAREST)
+
+    transform_from = PyOpenColorIO.FileTransform(
+            "sRGB_Linear_to_CCTF_variant.spi1d",
             interpolation=PyOpenColorIO.Constants.INTERP_NEAREST)
 
     colourspace.setTransform(
@@ -91,21 +151,5 @@ def make_transforms(transform_path, config):
         transform_to, PyOpenColorIO.Constants.COLORSPACE_DIR_TO_REFERENCE)
     colourspace.setTransform(
         transform_from, PyOpenColorIO.Constants.COLORSPACE_DIR_FROM_REFERENCE)
-
-    config.addColorSpace(colourspace)
-
-    # Define the reference ITU-R BT.709 linear RGB to IE based
-    # reference transform
-    colourspace = PyOpenColorIO.ColorSpace(
-        family="Chromaticity",
-        name="sRGB Linear RGB")
-    colourspace.setDescription("sRGB IEC 61966-2-1 Linear RGB")
-    colourspace.setBitDepth(PyOpenColorIO.Constants.BIT_DEPTH_F32)
-    colourspace.setAllocationVars(
-        [
-            numpy.log2(calculate_ev_to_rl(-10.0)),
-            numpy.log2(calculate_ev_to_rl(15.0))
-        ])
-    colourspace.setAllocation(PyOpenColorIO.Constants.ALLOCATION_LG2)
 
     config.addColorSpace(colourspace)

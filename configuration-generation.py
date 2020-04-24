@@ -91,6 +91,9 @@ if __name__ == "__main__":
         },
         "sRGB Display": {
             "Display Native": "sRGB Colourspace"
+        },
+        "sRGB Display Variant": {
+            "Display Native": "sRGB Colourspace Variant"
         }
     }
 
