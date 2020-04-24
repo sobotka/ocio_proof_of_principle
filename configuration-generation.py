@@ -32,8 +32,8 @@ if __name__ == "__main__":
     # Define the radiometrically linear working reference space
     colourspace = PyOpenColorIO.ColorSpace(
         family="Colourspace",
-        name="Scene Linear BT.709 IE")
-    colourspace.setDescription("Scene Linear BT.709 with IE white point")
+        name="Scene Linear BT.709 D65")
+    colourspace.setDescription("Scene Linear BT.709 with D65 white point")
     colourspace.setBitDepth(PyOpenColorIO.Constants.BIT_DEPTH_F32)
     colourspace.setAllocationVars(
         [
@@ -59,10 +59,10 @@ if __name__ == "__main__":
 
     config.setRole(
         PyOpenColorIO.Constants.ROLE_SCENE_LINEAR,
-        "Scene Linear BT.709 IE")
+        "Scene Linear BT.709 D65")
     config.setRole(
         PyOpenColorIO.Constants.ROLE_REFERENCE,
-        "Scene Linear BT.709 IE")
+        "Scene Linear BT.709 D65")
     config.setRole(
         PyOpenColorIO.Constants.ROLE_COLOR_TIMING,
         "sRGB Colourspace")
@@ -84,11 +84,6 @@ if __name__ == "__main__":
     config.setRole(
         PyOpenColorIO.Constants.ROLE_TEXTURE_PAINT,
         "sRGB Colourspace")
-
-    # Define the Blender Role RGB to XYZ
-    config.setRole(
-        "XYZ",
-        "XYZ IE")
 
     displays = {
         "sRGB-Like Commodity Display": {
