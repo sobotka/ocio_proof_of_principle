@@ -1,0 +1,112 @@
+ocio_profile_version: 1
+
+search_path: LUTs
+strictparsing: true
+luma: [0.2126, 0.7152, 0.0722]
+
+roles:
+  color_picking: sRGB Colourspace
+  color_timing: sRGB Colourspace
+  compositing_log: sRGB Colourspace
+  data: Float Data
+  default: sRGB Colourspace
+  matte_paint: sRGB Colourspace
+  reference: Scene Linear BT.709 IE
+  scene_linear: Scene Linear BT.709 IE
+  texture_paint: sRGB Colourspace
+  xyz: XYZ IE
+
+displays:
+  sRGB-Like Commodity Display:
+    - !<View> {name: Display Native, colorspace: BT.709 2.2 CCTF Colourspace}
+  sRGB Display:
+    - !<View> {name: Display Native, colorspace: sRGB Colourspace}
+
+active_displays: [sRGB-Like Commodity Display, sRGB Display]
+active_views: [Display Native]
+
+colorspaces:
+  - !<ColorSpace>
+    name: sRGB Colourspace
+    family: Colourspace
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      sRGB IEC 61966-2-1 Colourspace
+    isdata: false
+    allocation: uniform
+    allocationvars: [0, 1]
+    to_reference: !<GroupTransform>
+      children:
+        - !<FileTransform> {src: sRGB_CCTF_to_Linear.spi1d, interpolation: nearest}
+        - !<MatrixTransform> {matrix: [0.88283, 0.114514, 0.00280126, 0, -0.00768098, 1.00783, -0.000193933, 0, -0.00285913, -0.00917985, 1.01198, 0, 0, 0, 0, 1]}
+    from_reference: !<GroupTransform>
+      children:
+        - !<MatrixTransform> {matrix: [0.88283, 0.114514, 0.00280126, 0, -0.00768098, 1.00783, -0.000193933, 0, -0.00285913, -0.00917985, 1.01198, 0, 0, 0, 0, 1], direction: inverse}
+        - !<FileTransform> {src: sRGB_Linear_to_CCTF.spi1d, interpolation: nearest}
+
+  - !<ColorSpace>
+    name: BT.709 2.2 CCTF Colourspace
+    family: Colourspace
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      Commodity BT.709 2.2 CCTF Colourspace
+    isdata: false
+    allocation: uniform
+    allocationvars: [0, 1]
+    to_reference: !<GroupTransform>
+      children:
+        - !<ExponentTransform> {value: [2.2, 2.2, 2.2, 1]}
+        - !<MatrixTransform> {matrix: [0.88283, 0.114514, 0.00280126, 0, -0.00768098, 1.00783, -0.000193933, 0, -0.00285913, -0.00917985, 1.01198, 0, 0, 0, 0, 1]}
+    from_reference: !<GroupTransform>
+      children:
+        - !<MatrixTransform> {matrix: [0.88283, 0.114514, 0.00280126, 0, -0.00768098, 1.00783, -0.000193933, 0, -0.00285913, -0.00917985, 1.01198, 0, 0, 0, 0, 1], direction: inverse}
+        - !<ExponentTransform> {value: [2.2, 2.2, 2.2, 1], direction: inverse}
+
+  - !<ColorSpace>
+    name: sRGB Linear RGB
+    family: Chromaticity
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      sRGB IEC 61966-2-1 Linear RGB
+    isdata: false
+    allocation: lg2
+    allocationvars: [-12.4739, 12.5261]
+    to_reference: !<MatrixTransform> {matrix: [0.88283, 0.114514, 0.00280126, 0, -0.00768098, 1.00783, -0.000193933, 0, -0.00285913, -0.00917985, 1.01198, 0, 0, 0, 0, 1]}
+    from_reference: !<MatrixTransform> {matrix: [0.88283, 0.114514, 0.00280126, 0, -0.00768098, 1.00783, -0.000193933, 0, -0.00285913, -0.00917985, 1.01198, 0, 0, 0, 0, 1], direction: inverse}
+
+  - !<ColorSpace>
+    name: XYZ IE
+    family: Chromaticity
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      XYZ transform with Illuminant E white point
+    isdata: false
+    allocation: lg2
+    allocationvars: [-12.4739, 12.5261]
+    to_reference: !<MatrixTransform> {matrix: [0.496921, 0.33909, 0.163989, 0, 0.256225, 0.678179, 0.0655957, 0, 0.0232932, 0.11303, 0.863677, 0, 0, 0, 0, 1]}
+    from_reference: !<MatrixTransform> {matrix: [0.496921, 0.33909, 0.163989, 0, 0.256225, 0.678179, 0.0655957, 0, 0.0232932, 0.11303, 0.863677, 0, 0, 0, 0, 1], direction: inverse}
+
+  - !<ColorSpace>
+    name: Scene Linear BT.709 IE
+    family: Colourspace
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      Scene Linear BT.709 with IE white point
+    isdata: false
+    allocation: lg2
+    allocationvars: [-12.4739, 12.5261]
+
+  - !<ColorSpace>
+    name: Float Data
+    family: Data
+    equalitygroup: ""
+    bitdepth: 32f
+    description: |
+      Float data that does not define a colour
+    isdata: true
+    allocation: uniform
